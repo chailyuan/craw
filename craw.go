@@ -5,9 +5,6 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-
-	logger "github.com/wonderivan/logger"
-	lrucache "github.com/wonderivan/lrucache"
 )
 
 // 缓存数据操作接口
@@ -32,7 +29,7 @@ type customValue struct {
 type Craw struct {
 	dispose CrawInterface
 	keyMap  map[string]*customValue
-	craw    *lrucache.LruCache
+	craw    *Cache
 	enable  bool
 	sync.RWMutex
 
@@ -45,11 +42,10 @@ type Craw struct {
 //
 // 参数 crawName:缓存名称，config缓存配置， dispose缓存数据处理方法
 func NewCraw(crawName string, dispose CrawInterface, config ...string) *Craw {
-	logger.Info("craw(%s) use setting:%s", crawName, config)
 	c := new(Craw)
 	c.dispose = dispose
 	c.keyMap = make(map[string]*customValue)
-	c.craw = lrucache.NewLruCache(crawName, config...)
+	c.craw = NewCache(crawName, config...)
 	c.totalAccess = new(uint64)
 	c.staggerAccess = new(uint64)
 	err := c.dispose.Init()
